@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base # sqlalchemy.orm is modern than .ext.declarative
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,6 +14,3 @@ SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{DB_PASS}@localhost:5432/{DB_N
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 Base = declarative_base()
-
-# Put this to main.py later
-Base.metadata.create_all(bind=engine)
