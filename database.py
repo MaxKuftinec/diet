@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base # sqlalchemy.orm is modern than .ext.declarative
+from sqlalchemy.orm import declarative_base, sessionmaker # sqlalchemy.orm is modern than .ext.declarative
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,4 +13,5 @@ SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{DB_PASS}@localhost:5432/{DB_N
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
+Session = sessionmaker(bind=engine)
 Base = declarative_base()
