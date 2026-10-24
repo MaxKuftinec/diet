@@ -8,10 +8,10 @@ load_dotenv()
 DB_NAME = os.getenv("DB_NAME")
 DB_PASS = os.getenv("DB_PASS")
 
-# postgresql://postgres:<password>@localhost:5432/fastapi
+# postgresql://postgres:<password>@localhost:5432/<dbname>
 SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{DB_PASS}@localhost:5432/{DB_NAME}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine) # This creates session factory
 Base = declarative_base()
