@@ -14,20 +14,19 @@ def another_ingredient():
 	return 42
 
 print(
-	"""
+"""
 Diet Planner\n
 1. Add ingredient
 2. List ingredients
 3. Add recipe
 4. List recipes
 5. View recipes
-0. Exit
-	"""
+0. Exit"""
 	)
 
 option = 42
 while option:
-	print("Select option: ", end="")
+	print("\nSelect option: ", end="")
 	try:
 		option = int(input())
 	except:
@@ -74,13 +73,13 @@ while option:
 			print(f"{recipe.id}    {recipe.name}")
 	elif option == 5:
 		print("\nRecipe ID: ", end="")
-		recipe_id = int(input())
-		recipe = view_recipe()
+		recipe = view_recipe(int(input()))
 		print(
-			f"""\n{recipe.name}
-			\n------------------------
-			\n"""
+		f"""\n{recipe["name"]}
+------------------------
+		"""
 		)
-
+		for ingredient in recipe["ingredients"]:
+			print(f"{ingredient["ingredient"].name}      {ingredient["quantity"]}")
 
 print("\nGoodbye!")

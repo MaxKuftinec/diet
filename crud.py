@@ -6,10 +6,9 @@ def create_ingredient(ingredient_name: str):
 	with Session.begin() as db:
 		new_ingredient = Ingredient(name=ingredient_name)
 		db.add(new_ingredient)
-		return new_ingredient
 
 def list_ingredient():
-	with Session.begin() as db:
+	with Session() as db:
 		return db.scalars(select(Ingredient)).all()
 
 def create_recipe(recipe_name: str, ingredients: list):
@@ -23,9 +22,24 @@ def create_recipe(recipe_name: str, ingredients: list):
 			db.add(new_recipe_ingredient)
 
 def list_recipe():
-	with Session.begin() as db:
+	with Session() as db:
 		return db.scalars(select(Recipe)).all()
 
-def view_recipe(recipe_id: int): # We also need to return it's corresponding ingredients
-	with Session.begin() as db:
-		return Recipe(id=recipe_id)
+def view_recipe(id: int): # We also need to return it's corresponding ingredients
+	with Session() as db:
+		recipe = db.get(Recipe, id)
+		recipe_ingredients = db.scalars(
+			select(RecipeIngredient).where(RecipeIngredient.recipe_id==recipe.id)
+		).all()
+		# RecipeIngredient is not ingredient, so we have to query ingredients from all RecipeIngredient objects we have received
+		#	{"ingredient": (db.get(Ingredient, ingredient.ingredient_id)), "quantity": ingredient.quantity_g}
+		#	[{"ingredient": Ingredient object, "quantity": "250"}]
+		ingredients = []
+		for ingredient in recipe_ingredients:
+			ingredients.append(
+				{
+					"ingredient": (db.get(Ingredient, ingredient.ingredient_id)),
+					"quantity": ingredient.quantity_g
+				}
+			)
+		return {"name": recipe.name, "ingredients": ingredients}
