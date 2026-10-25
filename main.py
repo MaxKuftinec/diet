@@ -1,5 +1,5 @@
 import models
-from crud import create_ingredient, list_ingredient, create_recipe
+from crud import create_ingredient, list_ingredient, create_recipe, list_recipe, view_recipe
 from database import engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -10,14 +10,24 @@ def another_ingredient():
 		return 0
 	elif another_ing != 'y':
 		print("Input either y or n: ", end="")
-		another_ingredient()
+		return another_ingredient()
 	return 42
 
-print("\n\nDiet Planner\n1. Add ingredient\n2. List ingredients\n3. Add recipe\n0. Exit")
+print(
+	"""
+Diet Planner\n
+1. Add ingredient
+2. List ingredients
+3. Add recipe
+4. List recipes
+5. View recipes
+0. Exit
+	"""
+	)
 
 option = 42
 while option:
-	print("\n\nSelect option: ", end="")
+	print("Select option: ", end="")
 	try:
 		option = int(input())
 	except:
@@ -47,7 +57,7 @@ while option:
 		ano_ing_counter = 42
 		while ano_ing_counter:
 			print("\nIngredient ID: ", end="")
-			ingredient_id = input()
+			ingredient_id = int(input()) # PostgreSQL can accept integer as string, but let's convert it beforehand
 			print("Quantity (g): ", end="")
 			quantity = int(input())
 			ingredients.append({"id": ingredient_id, "quantity": quantity})
@@ -57,5 +67,20 @@ while option:
 
 		create_recipe(recipe_name=recipe_name, ingredients=ingredients)
 		print("\nRecipe created succesfully!")
+	elif option == 4:
+		print("\nID    Recipe")
+		recipes = list_recipe()
+		for recipe in recipes:
+			print(f"{recipe.id}    {recipe.name}")
+	elif option == 5:
+		print("\nRecipe ID: ", end="")
+		recipe_id = int(input())
+		recipe = view_recipe()
+		print(
+			f"""\n{recipe.name}
+			\n------------------------
+			\n"""
+		)
 
-print("\n\nGoodbye!")
+
+print("\nGoodbye!")
