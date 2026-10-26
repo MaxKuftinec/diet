@@ -2,9 +2,9 @@ from sqlalchemy import select
 from database import Session
 from models import Recipe, Ingredient, RecipeIngredient
 
-def create_ingredient(ingredient_name: str, calorie_density: int, protein_density: int):
+def create_ingredient(ingredient_name: str, uom: str, calorie_density: int, protein_density: int):
 	with Session.begin() as db:
-		new_ingredient = Ingredient(name=ingredient_name, calorie_density=calorie_density, protein_density=protein_density)
+		new_ingredient = Ingredient(name=ingredient_name, uom=uom, calorie_density=calorie_density, protein_density=protein_density)
 		db.add(new_ingredient)
 
 def list_ingredient():
@@ -37,7 +37,7 @@ def create_recipe(recipe_name: str, ingredients: list):
 		db.add(recipe)
 		db.flush() # Flush allows creation of id without comitting the object in db
 		for ingredient in ingredients:
-			new_recipe_ingredient = RecipeIngredient(recipe_id=recipe.id, ingredient_id=ingredient["id"], quantity_g=ingredient["quantity"])
+			new_recipe_ingredient = RecipeIngredient(recipe_id=recipe.id, ingredient_id=ingredient["id"], quantity=ingredient["quantity"])
 			db.add(new_recipe_ingredient)
 
 def list_recipe():
@@ -51,19 +51,20 @@ def view_recipe(id: int): # We also need to return it's corresponding ingredient
 			select(RecipeIngredient).where(RecipeIngredient.recipe_id==recipe.id)
 		).all()
 		# RecipeIngredient is not ingredient, so we have to query ingredients from all RecipeIngredient objects we have received
-		#	{"ingredient": (db.get(Ingredient, ingredient.ingredient_id)), "quantity": ingredient.quantity_g}
+		#	{"ingredient": (db.get(Ingredient, ingredient.ingredient_id)), "quantity": ingredient.quantity}
 		#	[{"ingredient": Ingredient object, "quantity": "250"}]
 		ingredients = []
 		total_calorie = 0
 		total_protein = 0
 		for ingredient in recipe_ingredients:
 			ing = db.get(Ingredient, ingredient.ingredient_id)
-			calorie = ing.calorie_density * ingredient.quantity_g / 100
-			protein = ing.protein_density * ingredient.quantity_g / 100
+			calorie = ing.calorie_density * ingredient.quantity
+			protein = ing.protein_density * ingredient.quantity
 			ingredients.append(
 				{
 					"name": ing.name,
-					"quantity": ingredient.quantity_g,
+					"quantity": ingredient.quantity,
+					"uom": ing.uom,
 					"calorie": calorie,
 					"protein": protein
 				}
