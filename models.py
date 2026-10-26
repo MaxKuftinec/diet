@@ -12,6 +12,8 @@ class Ingredient(Base):
 
 	id = Column(Integer, primary_key=True, index=True)
 	name = Column(String)
+	calorie_density = Column(Integer) # Per 100g. Keep in mind that the way the ingredient is used in preparing a recipe may change the value e.g deep frying chicken with oil
+	protein_density = Column(Integer) # Same case
 
 class RecipeIngredient(Base):
 	"""Joint table"""

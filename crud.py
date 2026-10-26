@@ -2,9 +2,9 @@ from sqlalchemy import select
 from database import Session
 from models import Recipe, Ingredient, RecipeIngredient
 
-def create_ingredient(ingredient_name: str):
+def create_ingredient(ingredient_name: str, calorie_density: int, protein_density: int):
 	with Session.begin() as db:
-		new_ingredient = Ingredient(name=ingredient_name)
+		new_ingredient = Ingredient(name=ingredient_name, calorie_density=calorie_density, protein_density=protein_density)
 		db.add(new_ingredient)
 
 def list_ingredient():
@@ -27,7 +27,7 @@ def list_recipe():
 
 def view_recipe(id: int): # We also need to return it's corresponding ingredients
 	with Session() as db:
-		recipe = db.get(Recipe, id)
+		recipe = db.get(Recipe, id) # This still hasn't handle nonexisten id, so it may return None
 		recipe_ingredients = db.scalars(
 			select(RecipeIngredient).where(RecipeIngredient.recipe_id==recipe.id)
 		).all()

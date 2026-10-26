@@ -36,13 +36,18 @@ while option:
 	if option == 1:
 		print("Ingredient name: ", end="")
 		ingredient_name = input()
-		create_ingredient(ingredient_name=ingredient_name)
+		print("Calorie density per 100g: ", end="")
+		calorie_density = int(input())
+		print("Protein density per 100g: ", end="")
+		protein_density = int(input())
+		create_ingredient(ingredient_name, calorie_density, protein_density)
 		print("\nIngredient created succesfully!")
 	elif option == 2:
-		print("ID    Ingredient")
+		print(f"{'ID':3}|{'Ingredient':^20}|{'Calorie(per 100g)':^20}|{'Protein(per 100g)':^20}|")
+		print("-" * 70)
 		ingredients = list_ingredient()
 		for ingredient in ingredients:
-			print(f"{ingredient.id}    {ingredient.name}")
+			print(f"{ingredient.id:<3}|{ingredient.name:^20}|{ingredient.calorie_density:^20}|{ingredient.protein_density:^20}|")
 	elif option == 3:
 		print("Recipe name: ", end="")
 		recipe_name = input()
@@ -79,7 +84,16 @@ while option:
 ------------------------
 		"""
 		)
+		total_calorie = 0
+		total_protein = 0
 		for ingredient in recipe["ingredients"]:
-			print(f"{ingredient["ingredient"].name}      {ingredient["quantity"]}")
+			print(
+				f"{ingredient["ingredient"].name:<20}"
+				f"{ingredient["quantity"]:>3}g"
+			)
+			total_calorie += ingredient["ingredient"].calorie_density * ingredient["quantity"] / 100
+			total_protein += ingredient["ingredient"].protein_density * ingredient["quantity"] / 100
+		print(f"\nEstimated total calorie: {total_calorie}kcal")
+		print(f"Estimated total protein: {total_protein}g")
 
 print("\nGoodbye!")
