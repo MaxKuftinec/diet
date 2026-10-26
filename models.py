@@ -1,19 +1,19 @@
 from database import Base
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, false
 
 class Recipe(Base):
 	__tablename__ = "recipe"
 
 	id = Column(Integer, primary_key=True, index=True)
-	name = Column(String)
+	name = Column(String, nullable=false)
 
 class Ingredient(Base):
 	__tablename__ = "ingredient"
 
 	id = Column(Integer, primary_key=True, index=True)
-	name = Column(String)
-	calorie_density = Column(Integer) # Per 100g. Keep in mind that the way the ingredient is used in preparing a recipe may change the value e.g deep frying chicken with oil
-	protein_density = Column(Integer) # Same case
+	name = Column(String, nullable=false)
+	calorie_density = Column(Integer, nullable=false) # Per 100g. Keep in mind that the way the ingredient is used in preparing a recipe may change the value e.g deep frying chicken with oil
+	protein_density = Column(Integer, nullable=false) # Same case
 
 class RecipeIngredient(Base):
 	"""Joint table"""
@@ -22,4 +22,4 @@ class RecipeIngredient(Base):
 	# id = Column(Integer, primary_key=True, index=True)
 	recipe_id = Column(Integer, ForeignKey("recipe.id"), primary_key=True)
 	ingredient_id = Column(Integer, ForeignKey("ingredient.id"), primary_key=True)
-	quantity_g = Column(Integer)# Quantity as gram, for now...
+	quantity_g = Column(Integer)# Quantity as gram, for now... # We are going to standardized quantity so omit the g in quantity_g

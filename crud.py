@@ -11,6 +11,25 @@ def list_ingredient():
 	with Session() as db:
 		return db.scalars(select(Ingredient)).all()
 
+def view_ingredient(ingredient_id: int):
+	with Session() as db:
+		return db.get(Ingredient, ingredient_id)
+
+def update_ingredient(ingredient_id: int, ingredient_name: str, ingredient_calorie: int, ingredient_protein: int):
+	with Session.begin() as db:
+		ingredient = db.get(Ingredient, ingredient_id)
+		update_value = 0
+		if ingredient_name:
+			ingredient.name = ingredient_name
+			update_value = 42
+		if ingredient_calorie:
+			ingredient.calorie_density = ingredient_calorie
+			update_value = 42
+		if ingredient_protein:
+			ingredient.protein_density = ingredient_protein
+			update_value = 42
+		return update_value
+
 def create_recipe(recipe_name: str, ingredients: list):
 	with Session.begin() as db:
 		recipe = Recipe(name=recipe_name)
@@ -35,11 +54,20 @@ def view_recipe(id: int): # We also need to return it's corresponding ingredient
 		#	{"ingredient": (db.get(Ingredient, ingredient.ingredient_id)), "quantity": ingredient.quantity_g}
 		#	[{"ingredient": Ingredient object, "quantity": "250"}]
 		ingredients = []
+		total_calorie = 0
+		total_protein = 0
 		for ingredient in recipe_ingredients:
+			ing = db.get(Ingredient, ingredient.ingredient_id)
+			calorie = ing.calorie_density * ingredient.quantity_g / 100
+			protein = ing.protein_density * ingredient.quantity_g / 100
 			ingredients.append(
 				{
-					"ingredient": (db.get(Ingredient, ingredient.ingredient_id)),
-					"quantity": ingredient.quantity_g
+					"name": ing.name,
+					"quantity": ingredient.quantity_g,
+					"calorie": calorie,
+					"protein": protein
 				}
 			)
-		return {"name": recipe.name, "ingredients": ingredients}
+			total_calorie += calorie
+			total_protein += protein
+		return {"name": recipe.name, "ingredients": ingredients, "total_calorie": total_calorie, "total_protein": total_protein}
