@@ -31,10 +31,11 @@ class InventoryLot(Base):
 	__tablename__ = "inventory_lot"
 
 	id = Column(Integer, primary_key=True, index=True)
-	ingredient_id = Column(Integer, ForeignKey("ingredient.id"), primary_key=True)
+	ingredient_id = Column(Integer, ForeignKey("ingredient.id"))
 	quantity_purchased = Column(Numeric(6,2), nullable=False)
 	quantity_remaining = Column(Numeric(6,2), nullable=False)
 	total_price = Column(Numeric(5,2))
 	purchased_at = Column(Date, nullable=False)
 	expires_at = Column(Date)
 	opened_at = Column(Date)
+	consume_after_open = Column(Date) # Not sure if we could put this column to ingredient instead

@@ -1,6 +1,8 @@
+from datetime import date
+from decimal import Decimal
 from sqlalchemy import select
 from database import Session
-from models import Recipe, Ingredient, RecipeIngredient
+from models import InventoryLot, Recipe, Ingredient, RecipeIngredient
 
 def create_ingredient(ingredient_name: str, uom: str, calorie_density: int, protein_density: int):
 	with Session.begin() as db:
@@ -72,3 +74,37 @@ def view_recipe(id: int): # We also need to return it's corresponding ingredient
 			total_calorie += calorie
 			total_protein += protein
 		return {"name": recipe.name, "ingredients": ingredients, "total_calorie": total_calorie, "total_protein": total_protein}
+
+def create_inventory(ingredient_id: int, quantity_purchased: Decimal, total_price: Decimal, purchased_at: date, expires_at: date):
+	db = Session()
+	inventory = InventoryLot(
+		ingredient_id=ingredient_id,
+		quantity_purchased=quantity_purchased,
+		quantity_remaining=quantity_purchased,
+		total_price=total_price,
+		purchased_at=purchased_at if purchased_at else date.today(),
+		expires_at=expires_at
+	)
+	db.add(inventory)
+	db.commit()
+	id = inventory.id
+	db.close()
+	return view_inventory_lot(id)
+
+def view_inventory_lot(id: int):
+	with Session() as db:
+		lot = db.get(InventoryLot, id)
+		return {
+			"name": db.get(Ingredient, lot.ingredient_id).name,
+			"quantity_purchased": lot.quantity_purchased,
+			"quantity_remaining": lot.quantity_remaining,
+			"price": lot.total_price,
+			"purchased_at": lot.purchased_at,
+			"expire": lot.expires_at,
+			"opened": lot.opened_at,
+			"consume_after_open": lot.consume_after_open
+		}
+
+def list_inventory():
+	with Session() as db:
+		return db.scalars(select(InventoryLot)).all()

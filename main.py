@@ -1,8 +1,10 @@
 """Mainly handles CLI (display and input)"""
 
+from datetime import datetime
 import models
 from catalog import UNITS
-from crud import create_ingredient, list_ingredient, create_recipe, list_recipe, update_ingredient, view_ingredient, view_recipe
+from crud import create_ingredient, create_inventory, list_ingredient, create_recipe, list_inventory, list_recipe, update_ingredient, view_ingredient, view_recipe
+from decimal import Decimal
 from database import engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -16,7 +18,8 @@ def another_ingredient():
 		return another_ingredient()
 	return 42
 
-print(
+def main_menu():
+	print(
 """
 Diet Planner\n
 1. Add ingredient
@@ -25,12 +28,18 @@ Diet Planner\n
 4. Add recipe
 5. List recipes
 6. View recipes
+7. Add to inventory
+8. View inventory
+9. Update inventory
+10. Main Menu
 0. Exit"""
 	)
 
+main_menu()
+
 option = 42
 while option:
-	print("\nSelect option: ", end="")
+	print("\nSelect option (10 to view Main Menu): ", end="")
 	try:
 		option = int(input())
 	except:
@@ -47,10 +56,10 @@ while option:
 			print(f"{index:^3}|{unit["unit"]:^5}")
 		print("\nUoM ID: ", end="")
 		uom_id = int(input())
-		print("Calorie density per UoM: ", end="")
-		calorie_density = int(input())
-		print("Protein density per UoM: ", end="")
-		protein_density = int(input())
+		print(f"Calorie per {UNITS[uom_id]["unit"]}: ", end="")
+		calorie_density = Decimal(input())
+		print(f"Protein per {UNITS[uom_id]["unit"]}: ", end="")
+		protein_density = Decimal(input())
 		create_ingredient(ingredient_name, UNITS[uom_id]["unit"], calorie_density, protein_density)
 		print("\nIngredient created succesfully!")
 	elif option == 2:
@@ -129,5 +138,28 @@ while option:
 			)
 		print(f"\nEstimated total calorie: {recipe["total_calorie"]}kcal")
 		print(f"Estimated total protein: {recipe["total_protein"]}g")
+	elif option == 7: # Add to inventory
+		print("Ingredient ID: ", end="")
+		ingredient = view_ingredient(int(input()))
+		print(f"Adding {ingredient.name} to inventory\nQuantity Purchased: ", end="")
+		quantity_purchased = Decimal(input())
+		print("Price: ", end="")
+		price = Decimal(input())
+		print("Purchased at (DD/MM/YY) (leave blank if today): ", end="")
+		purchased_at = input()
+		purchased_at = datetime.strptime(purchased_at, "/%d/%m/%Y") if purchased_at else ""
+		print("Expiration date (DD/MM/YY): ", end="")
+		expire = datetime.strptime(input(), "%d/%m/%Y")
+		print(f"{create_inventory(ingredient.id, quantity_purchased, price, purchased_at, expire)["name"]} added to inventory succesfully!")
+	elif option == 8: # View inventory
+		inventory = list_inventory()
+		print(f"Lot|Qty Purchased|Qty Remaining|Price|Purchased At|{'Expire':^10}|{'Opened':^10}|Consume after open")
+		for lot in inventory:
+			print( # Could there be a better way than opening session for each loop to get the ingredient name?
+f"""{view_ingredient(lot.ingredient_id).name}|{lot.quantity_purchased:^13}|{lot.quantity_remaining:^13}|{lot.total_price:^5}|{lot.purchased_at}|{lot.expires_at:^13}|{lot.opened_at}|{lot.consume_after_open}"""
+			) # ingredient_id.name shouldn't work
+	# elif option == 9: # Update inventory
+	# elif option == 10:
+		main_menu()
 
 print("\nGoodbye!")
